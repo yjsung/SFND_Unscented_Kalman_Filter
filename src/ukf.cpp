@@ -70,9 +70,7 @@ UKF::UKF() {
 
 UKF::~UKF() {}
 
-void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  static long previous_timestamp_;  
-  
+void UKF::ProcessMeasurement(MeasurementPackage meas_package) {  
    if (!is_initialized_) {        
 		if (meas_package.sensor_type_ == MeasurementPackage::LASER){
           // set the state with the initial location and zero velocity
@@ -100,17 +98,16 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       		  0, 0, std_radrd_ * std_radrd_, 0, 0,
       		  0, 0, 0, std_radphi_ * std_radphi_, 0,
       		  0, 0, 0, 0, std_radphi_ * std_radphi_;
-      }
-
-    previous_timestamp_ = meas_package.timestamp_;
+      }    
+    time_us_ = meas_package.timestamp_;
     is_initialized_ = true;
     return;
   }
   // compute the time elapsed between the current and previous measurements
-  // dt - expressed in seconds
-  float dt = (meas_package.timestamp_ - previous_timestamp_) / 1000000.0;
-  previous_timestamp_ = meas_package.timestamp_;
-  
+  // dt - expressed in seconds  
+  float dt = (meas_package.timestamp_ - time_us_) / 1000000.0;  
+  time_us_ = meas_package.timestamp_;
+    
   Prediction(dt);
   
   if (meas_package.sensor_type_ == MeasurementPackage::LASER){
